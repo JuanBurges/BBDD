@@ -1,0 +1,66 @@
+-- Para escribir comentarios usar dos guiones y un espacio.
+CREATE TABLE proveedores(
+	Codigo INT AUTO_INCREMENT not null,
+	Nombre VARCHAR(40),
+	Direccion VARCHAR(50),
+	Telefono INT,
+	PRIMARY KEY (Codigo)
+);
+
+CREATE TABLE empleados(
+	NIF CHAR(9),
+	Num_seg_social CHAR(13) not null,
+	Nombre VARCHAR(40),
+	Direccion VARCHAR(60),
+	Num_cuenta CHAR(24) not null,
+	tipo ENUM('sin especialidad','oficinista','transportista','vendedor') DEFAULT 'sin especialidad',
+	PRIMARY KEY (NIF)
+);
+
+CREATE TABLE articulos(
+	Codigo INT(9) AUTO_INCREMENT not null,
+	Nombre VARCHAR(20) not null,
+	Descripcion VARCHAR(256),
+	PRIMARY KEY(Codigo)
+);
+
+ALTER TABLE articulos ADD cod_proveedores INT not null;
+ALTER TABLE articulos ADD CONSTRAINT `articulos_proveedores` FOREIGN KEY (cod_proveedores) REFERENCES proveedores(Codigo);
+
+CREATE TABLE ventas(
+	id_articulo INT AUTO_INCREMENT not null,
+	Fecha DATE,
+	Unidades_vendidas INT not null,
+	CONSTRAINT `venta_articulo` FOREIGN KEY (id_articulo) REFERENCES articulos(Codigo)
+);
+
+ALTER TABLE ventas ADD vendedor CHAR(9);
+ALTER TABLE ventas ADD CONSTRAINT `ventas_vendedores` FOREIGN KEY (vendedor) REFERENCES vendedores(NIF);
+
+CREATE TABLE oficinistas(
+	NIF CHAR(9) PRIMARY KEY,
+	Cargo VARCHAR(20) not null,
+	CONSTRAINT `empleados_fk1` FOREIGN KEY (NIF) REFERENCES empleados(NIF)
+);
+
+CREATE TABLE transportistas(
+	NIF CHAR(9) PRIMARY KEY,
+	Matricula CHAR(7) not null,
+	CONSTRAINT `empleados_fk2` FOREIGN KEY (NIF) REFERENCES empleados(NIF)
+);
+
+CREATE TABLE vendedores(
+	NIF CHAR(9) PRIMARY KEY,
+	Comision DECIMAL(5,2) not null,
+	CONSTRAINT `empleados_fk3` FOREIGN KEY (NIF) REFERENCES empleados(NIF)
+);
+ALTER TABLE ventas DROP Zonas_de_ventas;
+CREATE TABLE zonas_ventas(
+	Codigo int AUTO_INCREMENT not null,
+	Descripcion VARCHAR(256),
+	NIF_vendedor CHAR(9),
+	PRIMARY KEY (Codigo),
+	CONSTRAINT `zonas_vendedor` FOREIGN KEY (NIF_vendedor) REFERENCES vendedores(NIF)
+);
+ALTER TABLE ventas ADD zona INT not null;
+ALTER TABLE ventas ADD CONSTRAINT `ventas_zonas` FOREIGN KEY (zona) REFERENCES zonas_ventas(Codigo);
